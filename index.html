@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CTOx Triage Gate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f5f1; --panel:#ffffff; --ink:#15202b; --ink-2:#5b6672; --line:#dcdad3;
+  --go:#1f7a4d; --go-bg:#e4f3ea; --hold:#9a6400; --hold-bg:#fbefd2; --stop:#5b6672; --stop-bg:#e9ebee;
+  --btn:#ffffff; --btn-on:#15202b; --btn-on-ink:#ffffff; --focus:#2d6cdf;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  color-scheme:dark; --bg:#171a1e; --panel:#20252b; --ink:#eef0f2; --ink-2:#a2abb5; --line:#333a42;
+  --go:#6fd49b; --go-bg:#173424; --hold:#f0c36a; --hold-bg:#3a2d0f; --stop:#b4bcc5; --stop-bg:#2b3138;
+  --btn:#20252b; --btn-on:#eef0f2; --btn-on-ink:#15202b;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark; --bg:#171a1e; --panel:#20252b; --ink:#eef0f2; --ink-2:#a2abb5; --line:#333a42;
+  --go:#6fd49b; --go-bg:#173424; --hold:#f0c36a; --hold-bg:#3a2d0f; --stop:#b4bcc5; --stop-bg:#2b3138;
+  --btn:#20252b; --btn-on:#eef0f2; --btn-on-ink:#15202b;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,"Segoe UI",system-ui,sans-serif;font-size:17px;line-height:1.45;font-weight:500}
+main{max-width:680px;margin:0 auto;padding:28px 18px 200px}
+h1{font-size:1.9rem;font-weight:800;letter-spacing:-.02em;margin:0 0 6px;line-height:1.1}
+.lead{color:var(--ink-2);margin:0 0 26px;max-width:56ch}
+.gate{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;margin-bottom:12px}
+.gate h2{font-size:1.15rem;font-weight:800;margin:0 0 4px;letter-spacing:-.01em}
+.ask{margin:0 0 10px}
+.ask q{font-style:italic;quotes:"\201C" "\201D"}
+.yes-is{font-size:.95rem;color:var(--ink-2);margin:0 0 14px;padding-left:12px;border-left:3px solid var(--line)}
+.yes-is b{color:var(--ink);font-weight:800}
+.choices{display:flex;gap:8px;flex-wrap:wrap}
+.choices button{flex:1 1 120px;min-height:52px;border:1.5px solid var(--line);background:var(--btn);color:var(--ink);font:inherit;font-weight:800;font-size:1rem;border-radius:10px;padding:10px 12px;cursor:pointer}
+.choices button[aria-pressed="true"]{background:var(--btn-on);color:var(--btn-on-ink);border-color:var(--btn-on)}
+.choices button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.gate.off{opacity:.45}
+.gate.off .choices button{pointer-events:none}
+#verdict{position:fixed;left:0;right:0;bottom:0;padding:14px 18px calc(16px + env(safe-area-inset-bottom,0px));background:var(--panel);border-top:1px solid var(--line);box-shadow:0 -8px 30px rgba(0,0,0,.08)}
+#verdict .in{max-width:680px;margin:0 auto;display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.tag{flex:1 1 300px}
+.tag .big{font-size:1.5rem;font-weight:800;letter-spacing:-.02em;line-height:1.1;margin:0 0 4px}
+.tag .why{margin:0;color:var(--ink-2);font-size:.98rem}
+.tag.go .big{color:var(--go)} .tag.hold .big{color:var(--hold)} .tag.stop .big{color:var(--stop)}
+#verdict.go{background:var(--go-bg)} #verdict.hold{background:var(--hold-bg)} #verdict.stop{background:var(--stop-bg)}
+.actions{display:flex;gap:8px;flex-direction:column;flex:0 0 auto}
+.actions button{font:inherit;font-weight:800;font-size:.95rem;border-radius:10px;padding:10px 14px;cursor:pointer;border:1.5px solid var(--ink);background:transparent;color:var(--ink);min-height:44px}
+.actions button.primary{background:var(--ink);color:var(--bg)}
+.actions button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.note{font-size:.88rem;color:var(--ink-2);margin:26px 0 0;max-width:60ch}
+.progress{font-size:.9rem;color:var(--ink-2);margin:0 0 14px}
+@media (prefers-reduced-motion:no-preference){ #verdict{transition:background .25s} }
+</style>
+</head>
+<body>
+<main>
+  <h1>Triage gate</h1>
+  <p class="lead">Six questions, asked in this order, during the triage call. The first miss decides the call. Answer honestly and the bottom bar tells you exactly what to do and what to tag in the OS.</p>
+  <p class="progress" id="progress">0 of 6 answered</p>
+
+  <section class="gate" id="g1">
+    <h2>1. Have they led a tech team?</h2>
+    <p class="ask">Ask: <q>Tell me about the last team you led. How many engineers or product people, for how long, and what did you ship?</q></p>
+    <p class="yes-is"><b>Yes means:</b> 3+ years leading software, product or engineering people or architecture — a hands-on IC, a networks/hardware-only role, or a marketer who also builds websites is a no.</p>
+    <div class="choices" data-gate="1">
+      <button type="button" data-v="yes">Yes, 3+ years</button>
+      <button type="button" data-v="no">No</button>
+    </div>
+  </section>
+
+  <section class="gate" id="g2">
+    <h2>2. Do they want to build a fractional CTO practice?</h2>
+    <p class="ask">Ask: <q>What are you hoping to get out of this — are you looking to build your own fractional CTO practice, or something else?</q></p>
+    <p class="yes-is"><b>Yes means:</b> they want to run their own practice with our mentorship and framework. Wanting only a placement, only a lead list, or an MSP-style service is a no.</p>
+    <div class="choices" data-gate="2">
+      <button type="button" data-v="yes">Yes, their own practice</button>
+      <button type="button" data-v="no">No, something else</button>
+    </div>
+  </section>
+
+  <section class="gate" id="g3">
+    <h2>3. Do they understand what fractional CTO is and how we work?</h2>
+    <p class="ask">Give the 30-second explainer first (fCTO vs MSP, mentorship not job placement, what the program delivers). Then ask: <q>Does that match what you were picturing?</q></p>
+    <p class="yes-is"><b>Yes means:</b> they heard the explainer and still want in. If they need more time to understand the model, that is a not-right-now, not a strategy call.</p>
+    <div class="choices" data-gate="3">
+      <button type="button" data-v="yes">Yes, they get it</button>
+      <button type="button" data-v="no">No, still unclear</button>
+    </div>
+  </section>
+
+  <section class="gate" id="g4">
+    <h2>4. Can they invest?</h2>
+    <p class="ask">Ask: <q>Our programs run between $3K and $15K depending on the track. Is that something you're able to invest in right now?</q></p>
+    <p class="yes-is"><b>Yes means:</b> they say yes to that range now. A yes to the money but not for a quarter is <b>later</b>. Debt, no income, or a flat no is <b>no</b>.</p>
+    <div class="choices" data-gate="4">
+      <button type="button" data-v="yes">Yes, now</button>
+      <button type="button" data-v="later">Yes, but later</button>
+      <button type="button" data-v="no">No</button>
+    </div>
+  </section>
+
+  <section class="gate" id="g5">
+    <h2>5. Are they ready to start in the next 30 days?</h2>
+    <p class="ask">Ask: <q>On a scale of 1 to 10, how ready are you to move on this in the next 30 days?</q></p>
+    <p class="yes-is"><b>Yes means:</b> 7 or above. Anything under 7 is exploring, and exploring is not a strategy call.</p>
+    <div class="choices" data-gate="5">
+      <button type="button" data-v="yes">7 or higher</button>
+      <button type="button" data-v="no">6 or lower</button>
+    </div>
+  </section>
+
+  <section class="gate" id="g6">
+    <h2>6. Can they decide alone?</h2>
+    <p class="ask">Ask: <q>If the strategy call goes well, who else needs to be part of the decision?</q></p>
+    <p class="yes-is"><b>Yes means:</b> nobody, or the other person will be on the strategy call. A partner or spouse who has to sign off and won't be there is a no.</p>
+    <div class="choices" data-gate="6">
+      <button type="button" data-v="yes">Yes, they decide</button>
+      <button type="button" data-v="no">No, someone else</button>
+    </div>
+  </section>
+
+  <p class="note">Thresholds (3 years, $3K–$15K, 7 of 10, 30 days) are taken from the Sales Coach weekly posts and October’s DNQ reasons. They are proposals until Gerard or Donna confirms them; once confirmed, this is the definition of qualified.</p>
+</main>
+
+<div id="verdict" aria-live="polite">
+  <div class="in">
+    <div class="tag" id="tag">
+      <p class="big">Start with question 1</p>
+      <p class="why">The bar updates as you answer.</p>
+    </div>
+    <div class="actions">
+      <button type="button" class="primary" id="copy">Copy OS note</button>
+      <button type="button" id="reset">Clear</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var answers = {};
+  var labels = {
+    1:'Led a tech team 3+ yrs', 2:'Wants own fCTO practice', 3:'Understands fCTO model',
+    4:'Can invest $3K–$15K', 5:'Ready in 30 days (7+/10)', 6:'Decides alone'
+  };
+  function rules(){
+    // Returns {cls, big, why, tag} based on the first failing gate in order.
+    if(answers[1]==='no') return {cls:'stop', big:'Do not book. Tag: Not Qualified', why:'No tech-leadership background. Offer Self-Paced or the Foundation one-pager if they still want exposure, then ask for a referral.', tag:'Not Qualified — no tech leadership experience'};
+    if(answers[2]==='no') return {cls:'stop', big:'Do not book. Tag: Not Qualified', why:'Wrong service. They want placement, leads or an MSP, not a practice. Ask for a referral and close the call.', tag:'Not Qualified — wrong fit (placement/leads/MSP)'};
+    if(answers[3]==='no') return {cls:'hold', big:'Do not book yet. Tag: Not Right Now', why:'They do not understand the model. Send the business-model explainer, set a follow-up date, book only after they confirm it matches.', tag:'Not Right Now — needs business-model education'};
+    if(answers[4]==='no') return {cls:'stop', big:'Do not book. Tag: Not Qualified', why:'Cannot invest. Offer the $97 Sprint or Core membership so they stay in the ecosystem.', tag:'Not Qualified — no budget'};
+    if(answers[4]==='later') return {cls:'hold', big:'Do not book yet. Tag: Not Right Now', why:'Money is coming but not now. Get a specific month, set a follow-up trigger, put them in the nurture sequence.', tag:'Not Right Now — budget next quarter'};
+    if(answers[5]==='no') return {cls:'hold', big:'Do not book yet. Tag: Not Right Now', why:'Under 7 out of 10 is exploring. Nurture sequence, follow-up in 30 days.', tag:'Not Right Now — readiness under 7/10'};
+    if(answers[6]==='no') return {cls:'hold', big:'Book only with the decider on the call. Tag: Not Right Now', why:'Someone else signs off. Get that person on the strategy call or hold the booking.', tag:'Not Right Now — decider not on call'};
+    var n = Object.keys(answers).length;
+    if(n < 6){
+      var next = 1; while(answers[next]) next++;
+      return {cls:'', big:'So far so good — question ' + next + ' next', why:(6-n) + ' to go.', tag:''};
+    }
+    return {cls:'go', big:'Qualified. Book the strategy call.', why:'All six gates passed. Book in the closer calendar now, while they are on the phone.', tag:'Qualified — book strategy'};
+  }
+  function render(){
+    var r = rules();
+    var v = document.getElementById('verdict'), t = document.getElementById('tag');
+    v.className = r.cls; t.className = 'tag ' + r.cls;
+    t.innerHTML = '<p class="big"></p><p class="why"></p>';
+    t.querySelector('.big').textContent = r.big;
+    t.querySelector('.why').textContent = r.why;
+    document.getElementById('progress').textContent = Object.keys(answers).length + ' of 6 answered';
+    document.querySelectorAll('.gate').forEach(function(g, i){
+      var num = i + 1, failedEarlier = false;
+      for(var k = 1; k < num; k++){ if(answers[k] && answers[k] !== 'yes' && !(k===4 && answers[k]==='later')) failedEarlier = true; }
+      g.classList.toggle('off', failedEarlier);
+    });
+  }
+  document.querySelectorAll('.choices button').forEach(function(b){
+    b.addEventListener('click', function(){
+      var gate = b.parentNode.getAttribute('data-gate');
+      answers[gate] = b.getAttribute('data-v');
+      b.parentNode.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x===b ? 'true' : 'false'); });
+      render();
+    });
+  });
+  document.getElementById('reset').addEventListener('click', function(){
+    answers = {};
+    document.querySelectorAll('.choices button').forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+    render(); window.scrollTo({top:0});
+  });
+  document.getElementById('copy').addEventListener('click', function(){
+    var r = rules(), lines = ['Triage gate — ' + (r.tag || 'incomplete')];
+    for(var k = 1; k <= 6; k++){ if(answers[k]) lines.push(labels[k] + ': ' + answers[k]); }
+    var text = lines.join('\n'), btn = this;
+    function done(){ btn.textContent = 'Copied'; setTimeout(function(){ btn.textContent = 'Copy OS note'; }, 1500); }
+    try{ navigator.clipboard.writeText(text).then(done, function(){ prompt('Copy this note:', text); }); }
+    catch(e){ prompt('Copy this note:', text); }
+  });
+  render();
+})();
+</script>
+</body>
+</html>
