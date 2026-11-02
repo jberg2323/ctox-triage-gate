@@ -95,8 +95,8 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.02em;margin:0 0 6px;line-he
 
   <section class="gate" id="g4">
     <h2>4. Can they invest?</h2>
-    <p class="ask">Ask: <q>Our programs run between $3K and $15K depending on the track. Is that something you're able to invest in right now?</q></p>
-    <p class="yes-is"><b>Yes means:</b> they say yes to that range now. A yes to the money but not for a quarter is <b>later</b>. Debt, no income, or a flat no is <b>no</b>.</p>
+    <p class="ask">Ask: <q>People who do well in this invest real time and real money into building the practice. If this turns out to be the right fit, are you in a position to invest in it now?</q> Do not quote a price range on the triage call; pricing is handled on the strategy call.</p>
+    <p class="yes-is"><b>Yes means:</b> a clear yes to investing now. A yes to the money but not for a quarter is <b>later</b>. No income, maxed credit, or a flat no is <b>no</b>.</p>
     <div class="choices" data-gate="4">
       <button type="button" data-v="yes">Yes, now</button>
       <button type="button" data-v="later">Yes, but later</button>
@@ -124,7 +124,7 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.02em;margin:0 0 6px;line-he
     </div>
   </section>
 
-  <p class="note">Thresholds (3 years, $3K–$15K, 7 of 10, 30 days) are taken from the Sales Coach weekly posts and October’s DNQ reasons. They are proposals until Gerard or Donna confirms them; once confirmed, this is the definition of qualified.</p>
+  <p class="note">Thresholds (3 years, 7 of 10, 30 days) are taken from the Sales Coach weekly posts and October’s DNQ reasons; the no-price-range rule is the team’s September decision. They are proposals until Gerard or Donna confirms them; once confirmed, this is the definition of qualified.</p>
 </main>
 
 <div id="verdict" aria-live="polite">
@@ -145,7 +145,7 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.02em;margin:0 0 6px;line-he
   var answers = {};
   var labels = {
     1:'Led a tech team 3+ yrs', 2:'Open to own fCTO practice', 3:'Understands fCTO model',
-    4:'Can invest $3K–$15K', 5:'Ready in 30 days (7+/10)', 6:'Decides alone'
+    4:'Can invest now', 5:'Ready in 30 days (7+/10)', 6:'Decides alone'
   };
   function rules(){
     // Returns {cls, big, why, tag} based on the first failing gate in order.
