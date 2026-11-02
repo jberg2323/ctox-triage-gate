@@ -74,12 +74,12 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.02em;margin:0 0 6px;line-he
   </section>
 
   <section class="gate" id="g2">
-    <h2>2. Do they want to build a fractional CTO practice?</h2>
+    <h2>2. Are they open to running their own practice?</h2>
     <p class="ask">Ask: <q>What are you hoping to get out of this — are you looking to build your own fractional CTO practice, or something else?</q></p>
-    <p class="yes-is"><b>Yes means:</b> they want to run their own practice with our mentorship and framework. Wanting only a placement, only a lead list, or an MSP-style service is a no.</p>
+    <p class="yes-is"><b>Yes means:</b> they want their own practice, or they are still deciding between a W-2 and a practice. Undecided is a strategy call, not a disqualifier — connecting them to the vision is the closer’s job. <b>No means:</b> they want an agency model, a placement only, a lead list only, or an MSP-style service.</p>
     <div class="choices" data-gate="2">
-      <button type="button" data-v="yes">Yes, their own practice</button>
-      <button type="button" data-v="no">No, something else</button>
+      <button type="button" data-v="yes">Yes, or still deciding</button>
+      <button type="button" data-v="no">No, agency / placement / leads</button>
     </div>
   </section>
 
@@ -144,13 +144,13 @@ h1{font-size:1.9rem;font-weight:800;letter-spacing:-.02em;margin:0 0 6px;line-he
 (function(){
   var answers = {};
   var labels = {
-    1:'Led a tech team 3+ yrs', 2:'Wants own fCTO practice', 3:'Understands fCTO model',
+    1:'Led a tech team 3+ yrs', 2:'Open to own fCTO practice', 3:'Understands fCTO model',
     4:'Can invest $3K–$15K', 5:'Ready in 30 days (7+/10)', 6:'Decides alone'
   };
   function rules(){
     // Returns {cls, big, why, tag} based on the first failing gate in order.
     if(answers[1]==='no') return {cls:'stop', big:'Do not book. Tag: Not Qualified', why:'No tech-leadership background. Offer Self-Paced or the Foundation one-pager if they still want exposure, then ask for a referral.', tag:'Not Qualified — no tech leadership experience'};
-    if(answers[2]==='no') return {cls:'stop', big:'Do not book. Tag: Not Qualified', why:'Wrong service. They want placement, leads or an MSP, not a practice. Ask for a referral and close the call.', tag:'Not Qualified — wrong fit (placement/leads/MSP)'};
+    if(answers[2]==='no') return {cls:'stop', big:'Do not book. Tag: Not Qualified', why:'Wrong service. They want an agency model, placement, leads or an MSP, not a practice. Ask for a referral and close the call. Note: someone who is merely undecided about building a practice is a YES on this gate.', tag:'Not Qualified — wrong fit (agency/placement/leads/MSP)'};
     if(answers[3]==='no') return {cls:'hold', big:'Do not book yet. Tag: Not Right Now', why:'They do not understand the model. Send the business-model explainer, set a follow-up date, book only after they confirm it matches.', tag:'Not Right Now — needs business-model education'};
     if(answers[4]==='no') return {cls:'stop', big:'Do not book. Tag: Not Qualified', why:'Cannot invest. Offer the $97 Sprint or Core membership so they stay in the ecosystem.', tag:'Not Qualified — no budget'};
     if(answers[4]==='later') return {cls:'hold', big:'Do not book yet. Tag: Not Right Now', why:'Money is coming but not now. Get a specific month, set a follow-up trigger, put them in the nurture sequence.', tag:'Not Right Now — budget next quarter'};
